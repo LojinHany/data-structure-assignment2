@@ -85,17 +85,13 @@ public:
     }
 
     string goBack(){
-        if(backStack.count()==1){
+        if(backStack.count()<=1){
             cout<<"No URL to return back to"<<endl;
             return currentUrl;
         }
         forwardStack.push(currentUrl);
         backStack.pop();
-         if (!backStack.isEmpty()) {
-            currentUrl = backStack.peek();
-        } else {
-            currentUrl = "";
-        }
+        currentUrl = backStack.peek();
         return currentUrl;
     }
 
@@ -107,7 +103,6 @@ public:
         currentUrl=forwardStack.peek();
         backStack.push(currentUrl);
         forwardStack.pop();
-
         return currentUrl;
     }
 
@@ -138,6 +133,10 @@ int main()
             while (getline(file, line)) {
 
                 if (line.empty()) continue;
+                while (!line.empty() && (line.back() == '\r' || isspace(line.back()))) {
+                    line.pop_back();
+                }
+
                 if (line.find("Test Case") != string::npos) {
                     cout << "\n=== " << line << " ===" << endl;
                     browser.reset();
@@ -149,21 +148,22 @@ int main()
                     size_t endPos = line.find_last_of("\"");
                     if (startPos != string::npos && endPos != string::npos && startPos < endPos) {
                         string url = line.substr(startPos, endPos - startPos);
-                        browser.visit(url);
                         cout << "\n--Visited: " << url << endl;
+                        browser.visit(url);
                     }
-                } else if (line == "goBack()") {
-                    browser.goBack();
+                } else if (line.rfind("goBack()", 0) == 0) {
                     cout << "\n--GoBack" << endl;
-                } else if (line == "goForward()") {
-                    browser.goForward();
+                     browser.goBack();
+                } else if (line.rfind("goForward()", 0) == 0) {
                     cout << "\n--GoForward" << endl;
+                    browser.goForward();
                 }
                 browser.displayAll();
             }
             file.close();
 
         } else if (option == "2") {
+            browser.reset();
             while (true) {
                 cout << "\n1- Visit URL\n2- Go Back\n3- Go Forward\n4- Exit\nEnter your choice (1-4): ";
                 cin >> option;
