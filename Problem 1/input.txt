@@ -1,0 +1,50 @@
+Test Case 1
+visit("google.com")
+visit("wikipedia.org") 
+visit("youtube.com") 
+goBack() 
+goBack()
+goForward()
+visit("facebook.com") 
+
+Test Case 2
+visit("github.com")
+visit("stackoverflow.com")
+goBack()
+visit("reddit.com")
+goBack()
+goBack()
+goForward()
+
+Test Case 3
+visit("apple.com")
+goBack()
+goForward()
+visit("amazon.com")
+goBack()
+goBack()
+
+Test Case 4
+visit("twitter.com")
+visit("instagram.com")
+goBack()
+goBack()
+goForward()
+goBack()
+
+Test Case 5
+visit("linkedin.com")
+visit("youtube.com")
+goBack()
+visit("spotify.com")
+goBack()
+goForward()
+
+Test Case 6
+visit("bing.com")
+goBack()
+goForward()
+visit("duckduckgo.com")
+goBack()
+goForward()
+goBack()
