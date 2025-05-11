@@ -373,7 +373,7 @@ int main() {
     int choice;
 
     while (in >> choice) {
-        cout << "Address Book Application\n"
+        cout << "\nAddress Book Application\n"
                 "------------------------\n"
                 "1. Add New Contact\n"
                 "2. Search for Contact\n"
