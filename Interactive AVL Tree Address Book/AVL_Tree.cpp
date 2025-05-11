@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <istream>
+#include <iomanip>
+
 using namespace std;
 
 //contact details
@@ -13,8 +15,8 @@ struct Contact {
 struct Node {
     int key;  //key -> ID
     Contact contact;
-    Node* left;
-    Node* right;
+    Node *left;
+    Node *right;
     int height;
 
     Node(int k, Contact info) {
@@ -25,8 +27,75 @@ struct Node {
     }
 };
 
+
+template<class T, int size = 100>
+class ArrayQueue {
+private:
+    int first, last;
+    T data[size];
+
+public:
+    ArrayQueue() {
+        first = -1;
+        last = -1;
+    }
+
+    bool isEmpty() {
+        return first == -1;
+    }
+
+    int Size() {
+        if (isEmpty()) {
+            return 0;
+        }
+        if (last >= first) {
+            return last - first + 1;
+        } else {
+            return size - first + last + 1;
+        }
+    }
+
+    Node *front() {
+        if (first == -1 || first > last) {
+            cout << "empty" << endl;
+            return nullptr;
+        } else {
+            return data[first];
+        }
+    }
+
+    void enqueue(T value) {
+        if (isEmpty()) {
+            first = 0;
+            last = 0;
+        } else if (last == size - 1) {
+            last = 0; // wrap around
+        } else {
+            last++;
+        }
+        data[last] = value;
+    }
+
+    void dequeue() {
+        if (isEmpty()) {
+            cout << "Queue is empty. Cannot dequeue." << endl;
+            return;
+        }
+        if (first == last) { // queue has only 1 element
+            first = -1;
+            last = -1;
+        } else if (first == size - 1) {
+            first = 0; // wrap around
+        } else {
+            first++;
+        }
+    }
+
+};
+
+
 //Will be used in helper functions
-Node* root = nullptr;
+Node *root = nullptr;
 
 
 void inOrderTraversal(Node *node) {
@@ -48,17 +117,17 @@ void listAllContacts(Node *root) {
     }
 }
 
-int height(Node* n) {
+int height(Node *n) {
     return n ? n->height : 0;
 }
 
-int getBalance(Node* n) {
+int getBalance(Node *n) {
     return n ? height(n->left) - height(n->right) : 0;
 }
 
-Node* rightRotate(Node* y) {
-    Node* x = y->left;
-    Node* T2 = x->right;
+Node *rightRotate(Node *y) {
+    Node *x = y->left;
+    Node *T2 = x->right;
 
     x->right = y;
     y->left = T2;
@@ -68,9 +137,9 @@ Node* rightRotate(Node* y) {
     return x;
 }
 
-Node* leftRotate(Node* x) {
-    Node* y = x->right;
-    Node* T2 = y->left;
+Node *leftRotate(Node *x) {
+    Node *y = x->right;
+    Node *T2 = y->left;
 
     y->left = x;
     x->right = T2;
@@ -81,7 +150,7 @@ Node* leftRotate(Node* x) {
 }
 
 //Add contact
-Node* insert(Node* node, int key, Contact c) {
+Node *insert(Node *node, int key, Contact c) {
 
     if (!node) return new Node(key, c);
     if (key < node->key)
@@ -114,15 +183,15 @@ Node* insert(Node* node, int key, Contact c) {
 }
 
 
-Node* minValueNode(Node* node) {
-    Node* current = node;
+Node *minValueNode(Node *node) {
+    Node *current = node;
     while (current && current->left)
         current = current->left;
     return current;
 }
 
 //Delete contact by ID
-Node* deleteNode(Node* root, int key) {
+Node *deleteNode(Node *root, int key) {
     if (!root) return root;
 
     if (key < root->key)
@@ -131,11 +200,11 @@ Node* deleteNode(Node* root, int key) {
         root->right = deleteNode(root->right, key);
     else {
         if (!root->left || !root->right) {
-            Node* temp = root->left ? root->left : root->right;
+            Node *temp = root->left ? root->left : root->right;
             delete root;
             return temp;
         } else {
-            Node* temp = minValueNode(root->right);
+            Node *temp = minValueNode(root->right);
             root->key = temp->key;
             root->contact = temp->contact;
             root->right = deleteNode(root->right, temp->key);
@@ -162,7 +231,7 @@ Node* deleteNode(Node* root, int key) {
 }
 
 //Search using ID
-Node* search(Node* root, int key) {
+Node *search(Node *root, int key) {
     if (!root || root->key == key)
         return root;
     if (key < root->key)
@@ -171,110 +240,129 @@ Node* search(Node* root, int key) {
 }
 
 //helper function for insert
-void addContact(ifstream& in) {
+void addContact(ifstream &in) {
     Contact c;
     int id;
     in >> id >> c.name >> c.phone >> c.email;
-    Node* found = search(root, id);
-    if (found){
-        cout << "Error: Contact with ID " << id << " already exists."<<endl;
-    } else{
+    Node *found = search(root, id);
+    if (found) {
+        cout << "Error: Contact with ID " << id << " already exists." << endl;
+    } else {
         root = insert(root, id, c);
-        cout << "Contact added successfully."<< endl;
+        cout << "Contact added successfully." << endl;
     }
 }
 
 //helper function for delete
-void deleteContact(ifstream& in) {
+void deleteContact(ifstream &in) {
     int id;
     in >> id;
-    Node* found = search(root, id);
+    Node *found = search(root, id);
     if (found) {
         root = deleteNode(root, id);
-        cout << "Contact deleted successfully."<<endl;
+        cout << "Contact deleted successfully." << endl;
     } else {
-        cout << "Contact not found."<<endl;
+        cout << "Contact not found." << endl;
     }
 }
 
 
 //helper function for search
-void searchContact(ifstream& in) {
+void searchContact(ifstream &in) {
     int id;
     in >> id;
-    Node* found = search(root, id);
+    Node *found = search(root, id);
     if (found) {
-        cout << "Contact found:"<<endl;
+        cout << "Contact found:" << endl;
         cout << "ID: " << found->key << "\n";
         cout << "Name: " << found->contact.name << "\n";
         cout << "Phone: " << found->contact.phone << "\n";
         cout << "Email: " << found->contact.email << "\n";
     } else {
-        cout << "Contact not found."<<endl;
+        cout << "Contact not found." << endl;
     }
 }
 
-
-// Fill the tree structure in the array (2D grid-like representation)
-void fillMatrix(string** res, Node* root, int row, int col, int offset, int maxWidth) {
+void printTree(Node *root) {
     if (!root) return;
 
-    // Ensure we're not writing outside the bounds of the array
-    if (row < 0 || row >= maxWidth || col < 0 || col >= maxWidth) return;
+    // Step 1: Calculate tree depth and width
+    int depth = height(root);
+    int maxWidth = (1 << depth) * 3;  // Width of the last level
 
-    // Place the node value at the correct position
-    res[row][col] = to_string(root->key);
+    // Step 2: Level order traversal using queue
+    ArrayQueue<Node *> q;
+    q.enqueue(root);
 
-    // Prevent offset from becoming too small
-    if (offset < 1) return;
+    int level = 0;
+    while (!q.isEmpty()) {
+        int levelNodeCount = q.Size();
+        int spaceBetweenNodes = maxWidth / (levelNodeCount + 1);
 
-    // Place the left child branch
-    if (root->left) {
-        if (col - offset >= 0) res[row + 1][col - offset] = "/";
-        fillMatrix(res, root->left, row + 2, col - 2 * offset, offset / 2, maxWidth);
-    }
+        // Step 3: Print all nodes in the current level
+        Node **currentLevelNodes = new Node *[levelNodeCount];
+        for (int i = 0; i < levelNodeCount; ++i) {
+            Node *node = q.front();
+            q.dequeue();
 
-    // Place the right child branch
-    if (root->right) {
-        if (col + offset < maxWidth) res[row + 1][col + offset] = "\\";
-        fillMatrix(res, root->right, row + 2, col + 2 * offset, offset / 2, maxWidth);
-    }
-}
+            currentLevelNodes[i] = node;
 
-// Main function to print the tree using raw arrays
-void displayCurrentTreeStructure(Node* root) {
-    if (!root) {
-        cout << "Tree is empty." << endl;
-        return;
-    }
-    int Height = height(root);
-    int width = (1 << Height) * 2;  // Width based on the tree height
-    int capWidth = 500;  // Maximum width to prevent overflow
-    width = min(width, capWidth);  // Limit the width
-
-    // Dynamically allocate the 2D array (height * 2 x width)
-    string** res = new string*[Height * 2];
-    for (int i = 0; i < Height * 2; ++i) {
-        res[i] = new string[width];
-        fill(res[i], res[i] + width, " ");  // Fill the row with spaces
-    }
-
-    fillMatrix(res, root, 0, width / 2, width / 4, width);
-
-    // Print the tree
-    for (int i = 0; i < Height * 2; ++i) {
-        for (int j = 0; j < width; ++j) {
-            cout << res[i][j];
+            // If node is not null, print its value; otherwise, print a space
+            if (node) {
+                cout << setw(spaceBetweenNodes) << node->key;
+                q.enqueue(node->left);
+                q.enqueue(node->right);
+            } else {
+                cout << setw(spaceBetweenNodes) << " ";
+                q.enqueue(nullptr);
+                q.enqueue(nullptr);
+            }
         }
         cout << endl;
-    }
 
-    // Clean up dynamically allocated memory
-    for (int i = 0; i < Height * 2; ++i) {
-        delete[] res[i];
+        // Step 4: Print branches (left and right)
+        if (!q.isEmpty()) {
+            for (int i = 0; i < levelNodeCount; ++i) {
+                Node *node = currentLevelNodes[i];
+                int spaceBetweenBranches = spaceBetweenNodes / 2;
+
+                // Left branch
+                if (node && node->left) {
+                    cout << setw(spaceBetweenBranches) << "/";
+                } else {
+                    cout << setw(spaceBetweenBranches) << " ";
+                }
+
+                // Right branch
+                if (node && node->right) {
+                    cout << setw(spaceBetweenBranches) << "\\";
+                } else {
+                    cout << setw(spaceBetweenBranches) << " ";
+                }
+            }
+            cout << endl;
+        }
+
+        // Check if there are non-null children before going to the next level
+        bool hasNonNullChildren = false;
+        for (int i = 0; i < levelNodeCount; ++i) {
+            Node *node = currentLevelNodes[i];
+            if (node && (node->left || node->right)) {
+                hasNonNullChildren = true;
+                break;
+            }
+        }
+
+        if (!hasNonNullChildren) {
+            break;  // Stop if there are no more nodes with children
+        }
+
+        level++;
+
+        delete[] currentLevelNodes;
     }
-    delete[] res;
 }
+
 
 int main() {
     ifstream in("input.txt");
@@ -292,8 +380,9 @@ int main() {
                 "3. Delete Contact\n"
                 "4. List All Contacts\n"
                 "5. Display Current Tree Structure\n"
+                "6. Exit\n"
                 "------------------------\n"
-                "Enter operation (1-5):" << endl;
+                "Enter operation (1-6):" << endl;
 
         switch (choice) {
             case 1:
@@ -310,12 +399,16 @@ int main() {
                 cout << endl;
                 break;
             case 5:
-                displayCurrentTreeStructure(root);
+                printTree(root);
                 cout << endl;
                 break;
+            case 6:
+                cout << "Exiting" << endl;
+                return 0;
             default:
-                cout << "Invalid choice in file."<<endl;
+                cout << "Invalid choice in file." << endl;
         }
     }
     return 0;
 }
+
